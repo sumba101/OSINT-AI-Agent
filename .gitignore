@@ -2,9 +2,6 @@
 output/
 reports/
 
-# External tool repositories (installed separately)
-GHunt/
-
 # Project planning (not part of codebase)
 ProjectPlan.txt
 

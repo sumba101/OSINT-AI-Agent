@@ -82,56 +82,36 @@ Please install all missing tools and run the investigation again.
 
 ## IF ALL TOOLS ARE AVAILABLE: Investigation Protocol
 
-### Step 1: Parse Input
-Extract email addresses and usernames from the user query.
+Once all tools are verified, follow the detailed investigation procedures documented in the OSINT Investigation Skill (SKILL.md).
 
-### Step 2: Run CLI Tools (Output to Files)
+### Your Investigation Should:
 
-IMPORTANT: All CLI outputs must go to files in the `output/` directory, NOT into your context.
+1. **Extract identifiers** from the user query (emails, usernames)
+2. **Run appropriate CLI tools** following SKILL.md procedures
+3. **Save all outputs to files** in the output/ directory
+4. **Read and analyze** all output files, including any JSON files created by GHunt
+5. **Apply filters** to remove false positives (see SKILL.md blacklist)
+6. **Generate comprehensive report** in reports/ directory following the template in SKILL.md
 
-For each EMAIL found:
-```bash
-holehe <email> --only-used -C
-```
-(Creates CSV in current directory, then move to output/)
+### Intelligence Analysis Expectations:
 
-If email is @gmail.com:
-```bash
-ghunt email <email> > output/ghunt_<sanitized_email>.txt
-```
+Your final report should demonstrate deep analytical thinking:
 
-For each USERNAME found:
-```bash
-sherlock <username> --print-found --csv --output output/sherlock_<username>
-```
+- **Location Intelligence**: Use GHunt map review locations and calendar data to deduce:
+  - Places the person has been or frequently visits
+  - Travel patterns and frequency (heavy traveler vs. local)
+  - Geographic home base or areas of activity
+  - Potential work/home locations based on review patterns
 
-### Step 3: Read and Analyze Output Files
+- **Interest & Occupation Profiling**: Analyze discovered accounts/domains to infer:
+  - Hobbies and interests (gaming, photography, fitness, etc.)
+  - Professional field or occupation (if domains are highly indicative like GitHub, LinkedIn, industry forums)
+  - Skill levels and expertise areas
+  - Community involvement and social patterns
 
-1. Use Glob to find files in output/
-2. Use Read to examine each output file
-3. Use Grep if needed for searching patterns in large files
+- **Cross-Platform Patterns**: Identify connections and consistencies across different data sources
 
-### Step 4: Apply Filters
-
-For Sherlock results, EXCLUDE these false-positive domains:
-- boardgamegeek.com
-- clubhouse.com
-- codesnippets.fandom.com
-- linktr.ee
-- en.wikipedia.org/wiki/Special:CentralAuth
-- dailykos.com
-- mastodon.cloud
-
-### Step 5: Generate Report
-
-Create a comprehensive markdown report and save to reports/ directory.
-
-Include:
-- Executive summary
-- Detailed findings per tool
-- Cross-referenced insights (same usernames, linked accounts, etc.)
-- Profile assessment with your analysis
-- References to raw output files
+Support all conclusions with specific evidence from the collected data. Be analytical, not just descriptive.
 """
 
 
@@ -140,6 +120,8 @@ async def run_investigation(query: str):
     
     # Configure agent options
     options = ClaudeAgentOptions(
+        model="claude-haiku-4-20250514",  # Claude Haiku 4.5
+        # model="claude-sonnet-4-5-20250929",  # Claude Sonnet 4.5 (alternative for complex investigations)
         permission_mode="bypassPermissions",  # No human approval needed for tool execution
         setting_sources=["project"],           # Load skills from .claude/skills/
         allowed_tools=["Bash", "Write", "Read", "Glob", "Grep"],

@@ -172,6 +172,22 @@ ghunt email target@gmail.com > output/ghunt_target.txt
 - Last profile edit timestamp
 - Google Calendar (if public)
 
+### GHunt JSON Outputs
+
+**IMPORTANT**: GHunt may create additional JSON files in the output directory containing rich structured data:
+
+- `<email>_*_calendar.json` - Public calendar events with dates, times, locations, descriptions
+- `<email>_*_reviews.json` - Google Maps reviews with location names, addresses, ratings, review text, timestamps
+
+**Check the terminal output carefully** - GHunt will mention if these files are created. If they exist:
+1. Use `Glob` to find them: `output/*.json`
+2. Use `Read` to examine their contents
+3. **Parse and incorporate this data into your analysis** - these files contain valuable intelligence:
+   - **Calendar events**: Reveal activity patterns, professional meetings, personal events, time zones
+   - **Map reviews**: Show places visited, cities/countries traveled to, favorite locations, review frequency
+
+These JSON files are critical for location intelligence and activity profiling.
+
 ---
 
 ## Output File Handling
@@ -183,14 +199,23 @@ All CLI outputs MUST be saved to the `output/` directory:
 | holehe | CSV | `output/holehe_<email>.csv` |
 | sherlock | CSV | `output/sherlock_<username>.csv` |
 | ghunt | TXT | `output/ghunt_<email>.txt` |
+| ghunt (calendar) | JSON | `output/<email>_*_calendar.json` |
+| ghunt (reviews) | JSON | `output/<email>_*_reviews.json` |
 
 ### Workflow After Running Tools
 
-1. Use `Glob` to find all files: `output/*`
-2. Use `Read` to examine each output file
-3. Use `Grep` if needed to search for specific patterns in large outputs
-4. Parse and cross-reference data
-5. Generate comprehensive report
+1. **Use `Glob`** to find all files in output/: `output/*`
+2. **Identify file types**:
+   - CSV files from holehe/sherlock
+   - TXT file from ghunt
+   - JSON files from ghunt (calendar, reviews) - if created
+3. **Use `Read`** to examine each output file
+4. **For JSON files**: Parse the structured data to extract:
+   - Calendar: Event names, locations, dates, attendees
+   - Reviews: Business names, addresses, cities, countries, ratings, timestamps
+5. **Use `Grep`** if needed to search for specific patterns in large outputs
+6. **Cross-reference and analyze** all data sources
+7. **Generate comprehensive report** incorporating ALL findings
 
 ---
 
@@ -211,7 +236,7 @@ Save reports to: `reports/investigation_<YYYYMMDD_HHMMSS>.md`
 
 ## Executive Summary
 
-[2-3 sentence overview of key findings]
+[2-3 sentence overview of key findings and most significant discoveries]
 
 ---
 
@@ -227,11 +252,21 @@ Save reports to: `reports/investigation_<YYYYMMDD_HHMMSS>.md`
 
 ### Holehe Findings
 
-[Table or list of accounts discovered, categorized by type: social, shopping, streaming, etc.]
+[Table or list of accounts discovered, categorized by type: social, shopping, streaming, professional, gaming, etc.]
 
 ### Google Account Intelligence (GHunt)
 
 [Profile details, connected services, public activity - only if Gmail was investigated]
+
+**Location Data** (if available from GHunt JSON files):
+- Map reviews and locations visited
+- Geographic patterns and travel frequency
+- Potential home/work locations based on review clusters
+
+**Calendar Activity** (if available from GHunt JSON files):
+- Public events and meetings
+- Activity patterns and time zones
+- Professional vs. personal event indicators
 
 ---
 
@@ -239,28 +274,33 @@ Save reports to: `reports/investigation_<YYYYMMDD_HHMMSS>.md`
 
 ### Social Media Presence (Sherlock)
 
-[List of discovered profiles, excluding false positives from blacklist]
-
----
-
-## Cross-Reference Analysis
-
-[Connections between discovered accounts:
-- Same profile photos across platforms
-- Linked accounts
-- Consistent usernames
-- Activity patterns]
+[List of discovered profiles, excluding false positives from blacklist. Organize by platform category: professional networks, social media, gaming, creative platforms, etc.]
 
 ---
 
 ## Profile Assessment
 
-[AI analysis and insights:
-- Likely interests based on platform choices
-- Activity level estimation
-- Geographic hints (if any)
-- Platform preferences
-- Potential connections]
+[Analyze all collected data to form intelligence conclusions about the subject. Draw insights from:
+
+**Location Intelligence**: 
+- Where has this person been? (Review locations, calendar event locations)
+- How much do they travel? (Frequency and diversity of locations)
+- What's their likely home base? (Concentration of reviews, time zones in calendar)
+- What places do they frequent? (Repeated locations, local favorites)
+
+**Interest & Occupation Profiling**:
+- What are their hobbies and interests? (Platform types: gaming, photography, fitness, music)
+- What's their likely profession or field? (LinkedIn, GitHub, industry forums, professional tools)
+- What expertise level? (Depth of engagement, technical platforms)
+- Are they community-active? (Forums, social platforms, review frequency)
+
+**Behavioral Patterns**:
+- Online activity level and patterns
+- Platform preferences (visual vs. text, professional vs. casual)
+- Public vs. private orientation
+- Temporal patterns from calendar and review timestamps
+
+Support ALL conclusions with specific evidence from the data. Be analytical and deductive.]
 
 ---
 
@@ -270,7 +310,9 @@ Save reports to: `reports/investigation_<YYYYMMDD_HHMMSS>.md`
 |------|-------------|
 | holehe | `output/holehe_xxx.csv` |
 | sherlock | `output/sherlock_xxx.csv` |
-| ghunt | `output/ghunt_xxx.txt` |
+| ghunt (main) | `output/ghunt_xxx.txt` |
+| ghunt (calendar) | `output/xxx_calendar.json` (if created) |
+| ghunt (reviews) | `output/xxx_reviews.json` (if created) |
 
 ---
 
@@ -285,3 +327,5 @@ Save reports to: `reports/investigation_<YYYYMMDD_HHMMSS>.md`
 - **No results found**: Explicitly state "No accounts discovered on [platform type]"
 - **GHunt auth required**: If output shows login needed, note in report that `ghunt login` must be run
 - **Rate limiting**: Note in report, suggest waiting and retrying later
+- **JSON parsing errors**: If GHunt JSON files are malformed, note in report and use what's readable from text output
+- **Missing JSON files**: If GHunt mentions creating JSON files but they're not found, note this discrepancy in the report
