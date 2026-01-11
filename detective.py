@@ -84,10 +84,25 @@ Please install all missing tools and run the investigation again.
 
 Once all tools are verified, follow the detailed investigation procedures documented in the OSINT Investigation Skill (SKILL.md).
 
+### CRITICAL: Username Handling Rule
+
+**NEVER infer or deduce usernames from emails or other information.**
+
+- ✅ User explicitly provides username → Use sherlock
+- ❌ User only provides email → DO NOT run sherlock
+- ❌ DO NOT extract username from email addresses (e.g., "john.doe@gmail.com" does NOT mean username is "john.doe")
+
+Sherlock can ONLY be used when the user explicitly mentions a username in their query.
+
 ### Your Investigation Should:
 
-1. **Extract identifiers** from the user query (emails, usernames)
-2. **Run appropriate CLI tools** following SKILL.md procedures
+1. **Extract identifiers** from the user query:
+   - Emails (always extract if present)
+   - Usernames (ONLY if explicitly provided by user)
+2. **Run appropriate CLI tools** following SKILL.md procedures:
+   - holehe: Use `--only-used` flag only, output to .txt file
+   - sherlock: Use `--print-found --nsfw` flags only, output to .txt file (ONLY if username explicitly provided)
+   - ghunt: For Gmail addresses only
 3. **Save all outputs to files** in the output/ directory
 4. **Read and analyze** all output files, including any JSON files created by GHunt
 5. **Apply filters** to remove false positives (see SKILL.md blacklist)
@@ -120,7 +135,7 @@ async def run_investigation(query: str):
     
     # Configure agent options
     options = ClaudeAgentOptions(
-        model="claude-haiku-4-20250514",  # Claude Haiku 4.5
+        model="claude-haiku-4-5-20251001",  # Claude Haiku 4.5
         # model="claude-sonnet-4-5-20250929",  # Claude Sonnet 4.5 (alternative for complex investigations)
         permission_mode="bypassPermissions",  # No human approval needed for tool execution
         setting_sources=["project"],           # Load skills from .claude/skills/
@@ -152,9 +167,9 @@ async def run_investigation(query: str):
                         for block in message.content:
                             if hasattr(block, "text"):
                                 print(block.text, end="", flush=True)
-                
+                        print()
                 elif msg_type == "ToolUseMessage":
-                    # Show which tool is being used
+                    # Show which tool is being used. This is redundant because all the tools are executed within bash
                     tool_name = getattr(message, "name", "unknown")
                     print(f"\n🔧 Using tool: {tool_name}", flush=True)
                 

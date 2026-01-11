@@ -79,26 +79,33 @@ Please install all missing tools and try again.
 ### Command (with file output)
 
 ```bash
-holehe <email> --only-used --csv -C > output/holehe_<email_sanitized>.csv
+holehe --only-used <email> > output/holehe_<email_sanitized>.txt
 ```
+
+IMPORTANT NOTE:
+output of holehe starts with 
+```
+Twitter : @palenath
+Github : https://github.com/megadose/holehe
+For BTC Donations : 1FHDM49QfZX6pJmhjLE5tB2K6CaTLMZpXZ
+```
+This is from the developer of holehe. Ignore this in your analysis of the target. Do not confuse this to be twitter, github and BTC hash of the target we are analysing. Be careful.
 
 ### Options
 
 | Option | Description |
 |--------|-------------|
-| `--only-used` | Only show sites where email IS registered (recommended) |
-| `--csv` | Output as CSV format |
-| `-C` | Create CSV file |
-| `--no-color` | Disable colored output |
-| `-T <seconds>` | Set timeout (default: 10) |
+| `--only-used` | Only show sites where email IS registered (REQUIRED) |
 
 ### Example
 
 ```bash
-holehe target@example.com --only-used -C
+holehe --only-used target@example.com > output/holehe_target.txt
 ```
 
-This creates a CSV file with results.
+This saves the output to a text file for later analysis.
+
+**IMPORTANT**: Do NOT use `--csv` or `-C` flags. Only use `--only-used` flag.
 
 ---
 
@@ -106,26 +113,36 @@ This creates a CSV file with results.
 
 **Purpose**: Finds social media profiles matching a username across 400+ websites.
 
+### CRITICAL: Username Must Be Explicitly Provided
+
+**DO NOT infer or deduce usernames from emails or other data.**
+
+- ✅ User says: "investigate username john_doe" → Use sherlock
+- ❌ User provides email "john.doe@gmail.com" → DO NOT assume username is "john.doe" or "john_doe"
+- ✅ User says: "investigate email john@gmail.com and username johndoe123" → Use sherlock for "johndoe123" only
+
+**Only run Sherlock when the user explicitly provides a username in their query. DO NOT try to infer the user name from the email id**
+
 ### Command (with file output)
 
 ```bash
-sherlock <username> --print-found --csv --output output/sherlock_<username>
+sherlock --print-found --nsfw <username> > output/sherlock_<username>.txt
 ```
 
 ### Options
 
 | Option | Description |
 |--------|-------------|
-| `--print-found` | Only output sites where username EXISTS |
-| `--csv` | Create CSV output file |
-| `--output <path>` | Specify output file path |
-| `--timeout <seconds>` | Request timeout (default: 60) |
+| `--print-found` | Only output sites where username EXISTS (REQUIRED) |
+| `--nsfw` | Include NSFW sites in search (REQUIRED) |
 
 ### Example
 
 ```bash
-sherlock john_doe --print-found --csv --output output/sherlock_john_doe
+sherlock --print-found --nsfw john_doe > output/sherlock_john_doe.txt
 ```
+
+**IMPORTANT**: Do NOT use `--csv` or `--output` flags. Only use `--print-found` and `--nsfw` flags, and redirect output to file using `>`.
 
 ### ⚠️ FALSE POSITIVE DOMAINS - MUST FILTER
 
@@ -139,7 +156,7 @@ These domains frequently return false positives. **EXCLUDE from final report:**
 - `dailykos.com`
 - `mastodon.cloud`
 
-When reading sherlock output, filter out any rows containing these domains.
+When reading sherlock output, filter out any lines containing these domains.
 
 ---
 
@@ -148,7 +165,6 @@ When reading sherlock output, filter out any rows containing these domains.
 **Purpose**: Extracts Google account information from Gmail addresses including profile info, connected services, and public activity.
 
 ### Command (with file output)
-
 ```bash
 ghunt email <gmail_address> > output/ghunt_<email_sanitized>.txt
 ```
@@ -196,8 +212,8 @@ All CLI outputs MUST be saved to the `output/` directory:
 
 | Tool | Output Format | Filename Pattern |
 |------|---------------|------------------|
-| holehe | CSV | `output/holehe_<email>.csv` |
-| sherlock | CSV | `output/sherlock_<username>.csv` |
+| holehe | TXT | `output/holehe_<email>.txt` |
+| sherlock | TXT | `output/sherlock_<username>.txt` |
 | ghunt | TXT | `output/ghunt_<email>.txt` |
 | ghunt (calendar) | JSON | `output/<email>_*_calendar.json` |
 | ghunt (reviews) | JSON | `output/<email>_*_reviews.json` |
@@ -206,8 +222,7 @@ All CLI outputs MUST be saved to the `output/` directory:
 
 1. **Use `Glob`** to find all files in output/: `output/*`
 2. **Identify file types**:
-   - CSV files from holehe/sherlock
-   - TXT file from ghunt
+   - TXT files from holehe/sherlock/ghunt
    - JSON files from ghunt (calendar, reviews) - if created
 3. **Use `Read`** to examine each output file
 4. **For JSON files**: Parse the structured data to extract:
@@ -220,6 +235,9 @@ All CLI outputs MUST be saved to the `output/` directory:
 ---
 
 ## Final Report Structure
+Create a single report from the investigate. Do not generate more than a single report or other files and illustrations.
+
+Do not mention investigation limitations or give suggestions/recommendations on next steps in the report. It should just be your analysis and understanding.
 
 Save reports to: `reports/investigation_<YYYYMMDD_HHMMSS>.md`
 
@@ -243,8 +261,8 @@ Save reports to: `reports/investigation_<YYYYMMDD_HHMMSS>.md`
 ## Investigation Scope
 
 - **Email(s) investigated**: [list]
-- **Username(s) investigated**: [list]
-- **Tools used**: holehe, sherlock, ghunt
+- **Username(s) investigated**: [list if explicitly provided, otherwise state "None provided"]
+- **Tools used**: [list which tools were actually used: holehe, sherlock, ghunt]
 
 ---
 
@@ -274,6 +292,8 @@ Save reports to: `reports/investigation_<YYYYMMDD_HHMMSS>.md`
 
 ### Social Media Presence (Sherlock)
 
+[Only include this section if a username was explicitly provided and sherlock was run]
+
 [List of discovered profiles, excluding false positives from blacklist. Organize by platform category: professional networks, social media, gaming, creative platforms, etc.]
 
 ---
@@ -287,6 +307,10 @@ Save reports to: `reports/investigation_<YYYYMMDD_HHMMSS>.md`
 - How much do they travel? (Frequency and diversity of locations)
 - What's their likely home base? (Concentration of reviews, time zones in calendar)
 - What places do they frequent? (Repeated locations, local favorites)
+
+**Name based insights**:
+- Using hints from the email id or user name and other information, what insights can you gather about the person.
+- Deduce the gender, religion, ethnicity and region the person is from based on the name and other information.
 
 **Interest & Occupation Profiling**:
 - What are their hobbies and interests? (Platform types: gaming, photography, fitness, music)
@@ -304,20 +328,10 @@ Support ALL conclusions with specific evidence from the data. Be analytical and 
 
 ---
 
-## Raw Data References
-
-| Tool | Output File |
-|------|-------------|
-| holehe | `output/holehe_xxx.csv` |
-| sherlock | `output/sherlock_xxx.csv` |
-| ghunt (main) | `output/ghunt_xxx.txt` |
-| ghunt (calendar) | `output/xxx_calendar.json` (if created) |
-| ghunt (reviews) | `output/xxx_reviews.json` (if created) |
-
----
-
 *Report generated by OSINT Detective Agent*
 ```
+
+DO NOT include recommendations or suggestions or next steps in the report.
 
 ---
 
@@ -329,3 +343,4 @@ Support ALL conclusions with specific evidence from the data. Be analytical and 
 - **Rate limiting**: Note in report, suggest waiting and retrying later
 - **JSON parsing errors**: If GHunt JSON files are malformed, note in report and use what's readable from text output
 - **Missing JSON files**: If GHunt mentions creating JSON files but they're not found, note this discrepancy in the report
+- **Username not provided**: If user only provides email but no username, sherlock cannot be run. Note in report: "Username investigation not performed - no username provided"
